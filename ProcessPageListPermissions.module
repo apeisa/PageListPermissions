@@ -151,6 +151,7 @@ class ProcessPageListPermissions extends Process {
         if ($id && count($data)) {
             $page = wire('pages')->get($id);
             if ($page->id) {
+                $page->setTrackChanges(true); 
                 $page->view_groups = new PageArray();
                 $page->edit_groups = new PageArray();
                 foreach ($data as $group_id => $perms) {
@@ -167,6 +168,10 @@ class ProcessPageListPermissions extends Process {
                 // enable manage_access if groups are/were selected
                 if (count($page->view_groups) || count($page->edit_groups)) $page->manage_access = 1;
                 // save page (triggers rebuilding of permissions)
+                // Had to add these after PW 2.7 update
+                $page->trackChange('view_groups');
+                $page->trackChange('edit_groups');
+                $page->trackChange('manage_access');
                 $page->save();
                 // generate JSON output for JavaScript AJAX POST request
                 $icon = count($page->view_groups) || count($page->edit_groups) ? 'lock' : 'unlock-alt';
